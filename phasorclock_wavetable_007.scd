@@ -20,6 +20,8 @@ s.waitForBoot{ fork{
 	//FUNCTIONS
 	////  look up func
 	var lookupfunc = { |array num | var return; array.do{|it ix| if(it[0] == num, { return=it[1] }) }; return; };
+	////  look up ix func
+	var lookupixfunc = { |array num | var return; array.do{|it ix| if(it[0] == num, { return=ix }) }; return; };
 
 	// GROUPS ///////////////////////////////////////////////
 	s.sendMsg(\g_new, 1999); s.sendMsg(\g_new, 2000);
@@ -84,7 +86,6 @@ s.waitForBoot{ fork{
 		var bnum=msg[1].asInteger;
 		var val=msg[2].asFloat;
 		~proc.sendMsg("/kdat", bnum, val);
-		//bnum.post; ":".post; val.postln;
 	}, \c_set);
 
 	0.1.wait;
@@ -133,18 +134,13 @@ s.waitForBoot{ fork{
 			0.1.wait;
 
 			//4) Add Signal to Buffer and Buffer to Buffer Array & convert buffer to float array
-			buf = Buffer.alloc(s, winw); //allocate buffer
+			buf = Buffer.alloc(s, winw, bufnum:ix); //allocate buffer
 
 			0.1.wait;
 
 			buf.loadCollection(sig); //add signal to buffer
 			//Add Buffer to buffer array indexed by curve number
-			crvbufs = crvbufs.add([ix, buf]);
-
 			0.1.wait;
-
-			crvbufs.postln;
-
 
 			//CONVERT BUFFER TO FLOAT ARRAY
 			buf.loadToFloatArray( action:{arg array; bufasarray = array.as(Array); "done".postln;} );
@@ -183,7 +179,6 @@ s.waitForBoot{ fork{
 		arg clkibs, sigbuf, kobs, obs, bufsize;
 		var clk = In.ar(clkibs);
 		var sig = BufRd.ar(1, sigbuf, clk*bufsize , 1);
-		sig.poll;
 		Out.kr(kobs, sig);
 		Out.ar(obs, sig);
 	}).add;
@@ -203,15 +198,9 @@ s.waitForBoot{ fork{
 			winw = lookupfunc.value(winwidths,winix);
 			0.1.wait;
 
-			//1) look up Curve Signal Buffer
-			sigbuf = Buffer.alloc(s, winw); //allocate buffer
-			0.1.wait;
-			sigbuf = lookupfunc.value(crvbufs, crvix);
-			0.1.wait;
-
 			//3) //// Make Curve Signal Synth - nodes: 4000-4999, group:2003, aobs:200-299, kobs:200-299
 			//// clock's audio sigs at audio busses 100-199
-			s.sendMsg(\s_new, \crvsig, 4000+ix, 0, 2003, \clkibs, 100+clkix, \sigbuf, sigbuf, \kobs, 200+ix, \obs, 200+ix, \bufsize, winw);
+			s.sendMsg(\s_new, \crvsig, 4000+ix, 0, 2003, \clkibs, 100+clkix, \sigbuf, ix, \kobs, 200+ix, \obs, 200+ix, \bufsize, winw);
 
 			//4) Make Curve Follower in Processing
 			// "mkcrvfollow", ix, clkix, crvix
