@@ -128,7 +128,8 @@ s.waitForBoot{ fork{
 			//3) Make Signal based on crvtype
 			switch( crvtype,
 				0, { sig = Signal.sineFill( winw, [1,3] ) },
-				1, { sig = Signal.chebyFill( winw, [0, 1, 0, 0, 0, 1], normalize: true, zeroOffset: false) }
+				1, { sig = Signal.chebyFill( winw, [0, 1, 0, 0, 0, 1], normalize: true, zeroOffset: false) },
+				2, { sig = Signal.sineFill( winw, [1,3,5,7] ) }
 			);
 
 			0.1.wait;
@@ -227,13 +228,60 @@ s.waitForBoot{ fork{
 // "/mkcrv", ix, winix, crvtype, crvwt, crvclr
 ~sclang.sendMsg("/mkcrv", 0, 0, 1, 5, "orange");
 ~sclang.sendMsg("/mkcrv", 1, 0, 0, 3, "seagreen");
+~sclang.sendMsg("/mkcrv", 2, 0, 2, 3, "dodgerblue");
 
 // "/mkcrvfollow, ix, clkix, crvix, winix
 ~sclang.sendMsg("/mkcrvfollow", 0, 0, 0, 0);
 ~sclang.sendMsg("/mkcrvfollow", 1, 0, 1, 0);
+~sclang.sendMsg("/mkcrvfollow", 2, 0, 2, 0);
 
 
 //curve follower in Processing
+
+//NOTES
+//// More Curves
+//// Hook Up to AM & Pitch Shifter
+//// Employ in Feedback/Audio Processing Setup
+////// Add Warp
+
+////speed and direction of cursor
+
+
+// Amplitude Modulation using curve
+SynthDef(\am, {
+	arg obs=0, ibs, kibs, freqlo=1, freqhi=80;
+	var car = In.ar(ibs);
+	var lfo =  In.kr(kibs).linexp(-1.0, 1.0, freqlo, freqhi);
+	var mod = SinOsc.kr(lfo).range(0.0, 1.0);
+	var sig = mod*car;
+	Out.ar(obs, sig);
+}).add;
+
+// PitchShift using curve
+SynthDef(\ps, {
+	arg obs=0, ibs, kibs, pitchratiolo=0.25, pitchratiohi=4;
+	var in = In.ar(ibs);
+	var lfo =  In.kr(kibs).linlin(-1.0, 1.0, pitchratiolo, pitchratiohi);
+	var sig = PitchShift.ar(in,0.2, lfo);
+	Out.ar(obs, sig);
+}).add;
+
+//Test Signal
+SynthDef(\tsaw, {Out.ar(10, Saw.ar(220) )}).add
+s.sendMsg(\s_new, \tsaw, 10000, 0, 2004);
+
+//Modulate test signal (am) using curve 0 coming from kbus 200
+s.sendMsg(\s_new, \am, 10001, 0, 2006, \ibs, 10, \kibs, 201);
+s.sendMsg(\n_set, 10001, \freqlo, 1, \freqhi, 35, \ibs, 11);
+//set am to curve 2 at kibs 2001
+s.sendMsg(\n_set, 10001, \freqlo, 1, \freqhi, 15, \kibs, 201);
+
+
+//Modulate test signal (pitchshift) using curve 0 coming from kbus 200
+s.sendMsg(\s_new, \ps, 10002, 0, 2005, \ibs, 10, \kibs, 202);
+s.sendMsg(\n_set, 10002, \pitchratiolo, 0.1, \pitchratiohi, 4, \obs, 11);
+//set am to curve 2 at kibs 2001
+s.sendMsg(\n_set, 10002, \freqlo, 1, \freqhi, 15, \kibs, 201);
 
 
 
