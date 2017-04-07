@@ -101,7 +101,8 @@ class CurvefollowerSet {
       Curvefollower inst = cset.get(i);
       if (ix>=200 && ix<300) {
         if ( inst.ix == (ix-200) ) {
-          inst.y = map(val, -1.0, 1.0, inst.b, inst.t);
+         // inst.y = map(val, -1.0, 1.0, inst.b, inst.t);
+         inst.y = map(val, 0.0, 1.0, inst.b, inst.t);
         }
       } // end if (ix>=200) {
     }

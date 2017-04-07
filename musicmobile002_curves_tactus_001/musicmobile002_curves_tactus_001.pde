@@ -102,7 +102,9 @@ void oscEvent(OscMessage msg) {
       if (inst.ix == crvix) {
 
         for (int j=1; j<inst.bufsize+1; j++) { //j=1 because msg[0]=curvenumber
-          float val = map(msg.get(j).floatValue(), -1.0, 1.0, 0.0, 1.0);
+          //float val = map(msg.get(j).floatValue(), -1.0, 1.0, 0.0, 1.0);
+          float val = msg.get(j).floatValue();
+          
           inst.sampArray[j-1] = val;
         } //end for (int i=0; i<inst.bufsize; i++)
 
