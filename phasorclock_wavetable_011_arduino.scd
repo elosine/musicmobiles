@@ -8,6 +8,9 @@ s.waitForBoot{ fork{
 
 	// GLOBAL VARIABLES
 
+	//// Arduino gate
+	var inoOn = 0;
+
 	//// Phasorclocks
 	var clkbpm = Array.newClear(0);
 	var clkbpc = Array.newClear(0);
@@ -38,6 +41,8 @@ s.waitForBoot{ fork{
 	~sclang = NetAddr("127.0.0.1", 57120); //SClang address
 
 	// ARDUINO /////////////////////////////////////////////////////////////////////////////////
+
+	if(inoOn == 1, {
 	~ino = ArduinoSMS("/dev/tty.wchusbserial1d160",9600);
 
 	//////Button Headers
@@ -73,6 +78,8 @@ s.waitForBoot{ fork{
 		}; //end sh.do
 
 	}; //end ino.action
+
+	}); //end if inoOn
 
 
 	// PHASOR CLOCKS /////////////////////////////////////////////////////////////////////////////////
@@ -357,41 +364,60 @@ s.waitForBoot{ fork{
 }} //end waitforboot/fork
 )
 
+
+// Motive Windows
+// "/mkwinlet", ix, x, y, w, h, clr
+~proc.sendMsg("/mkwinlet", 1, 50.0, 30.0, 150.0, 90.0, "white");
+~proc.sendMsg("/mkwinlet", 2, 265.0, 30.0, 150.0, 90.0, "white");
+~proc.sendMsg("/mkwinlet", 3, 480.0, 30.0, 150.0, 90.0, "white");
+~proc.sendMsg("/mkwinlet", 4, 695.0, 30.0, 150.0, 90.0, "white");
+~proc.sendMsg("/rmvwinlet", 4);
+
 // Make Window
 // "/mkwinlet", ix, x, y, w, h, clr
-~proc.sendMsg("/mkwinlet", 0, 50.0, 50.0, 800.0, 380.0, "black");
+~proc.sendMsg("/mkwinlet", 0, 50.0, 140.0, 800.0, 330.0, "black");
+//border
+~proc.sendMsg("/winbdr", 0, 1, 7, "violetred");
+~proc.sendMsg("/winbdr", 0, 0, 7, "yellow");
+//highlight
+~proc.sendMsg("/winhl", 0, 1, "violetred", 50);
+~proc.sendMsg("/winhl", 0, 0, "violetred", 50);
 
 // Make Cursor
 // "/mkcsr, ix, clkix, bpm, bpc, wt, clr
 ~sclang.sendMsg("/mkcsr", 0, 0, 60.0, 8.0, 3, "yellow");
 
 // "/mkcrv", ix, winix, crvtype, crvwt, crvclr
-~sclang.sendMsg("/mkcrv", 1000, 0, 1, 5, "orange");
-~sclang.sendMsg("/mkcrv", 1001, 0, 0, 3, "seagreen");
-~sclang.sendMsg("/mkcrv", 2001, 0, 2, 3, "dodgerblue");
-~sclang.sendMsg("/mkcrv", 2002, 0, 3, 3, "dodgerblue");
-
-
-~sclang.sendMsg("/mkcrv", 100, 0, 10, 3, "magenta");
-~sclang.sendMsg("/mkcrv", 101, 0, 7, 3, "indigo");
-~sclang.sendMsg("/mkcrv", 1, 0, 4, 3, "mint");
-
-
-~sclang.sendMsg("/mkcrv", 1, 0, 5, 3, "orange");
-~sclang.sendMsg("/mkcrv", 2, 0, 6, 3, "purple");
-~sclang.sendMsg("/mkcrv", 3, 0, 8, 3, "plum");
-~sclang.sendMsg("/mkcrv", 4, 0, 9, 3, "green");
-~sclang.sendMsg("/mkcrv", 5, 0, 10, 3, "green");
-~sclang.sendMsg("/mkcrv", 6, 0, 11, 3, "green");
-~sclang.sendMsg("/mkcrv", 7, 0, 12, 3, "goldenrod");
-~sclang.sendMsg("/mkcrv", 8, 0, 13, 3, "red");
+~sclang.sendMsg("/mkcrv", 0, 0, 0, 3, "seagreen");
+~sclang.sendMsg("/mkcrv", 1, 0, 1, 5, "orange");
+~sclang.sendMsg("/mkcrv", 2, 0, 2, 3, "dodgerblue");
+~sclang.sendMsg("/mkcrv", 3, 0, 3, 3, "pink");
+~sclang.sendMsg("/mkcrv", 4, 0, 4, 3, "mint");
+~sclang.sendMsg("/mkcrv", 5, 0, 5, 3, "yellow");
+~sclang.sendMsg("/mkcrv", 6, 0, 6, 3, "purple");
+~sclang.sendMsg("/mkcrv", 7, 0, 7, 3, "indigo");
+~sclang.sendMsg("/mkcrv", 8, 0, 8, 3, "plum"); //no work
+~sclang.sendMsg("/mkcrv", 9, 0, 9, 3, "green"); //no work
+~sclang.sendMsg("/mkcrv", 10, 0, 10, 3, "magenta");
+~sclang.sendMsg("/mkcrv", 11, 0, 11, 3, "turquoiseblue");
+~sclang.sendMsg("/mkcrv", 12, 0, 12, 3, "goldenrod");
+~sclang.sendMsg("/mkcrv", 13, 0, 13, 3, "red");
 
 // "/mkcrvfollow, ix, clkix, crvix, winix
-~sclang.sendMsg("/mkcrvfollow", 0, 0, 7, 0);
+~sclang.sendMsg("/mkcrvfollow", 0, 0, 0, 0);
 ~sclang.sendMsg("/mkcrvfollow", 1, 0, 1, 0);
 ~sclang.sendMsg("/mkcrvfollow", 2, 0, 2, 0);
-~sclang.sendMsg("/mkcrvfollow", 3, 0, 7, 0);
-~sclang.sendMsg("/mkcrvfollow", 3, 0, 10, 0);
+~sclang.sendMsg("/mkcrvfollow", 3, 0, 3, 0);
+~sclang.sendMsg("/mkcrvfollow", 4, 0, 4, 0);
+~sclang.sendMsg("/mkcrvfollow", 5, 0, 5, 0);
+~sclang.sendMsg("/mkcrvfollow", 6, 0, 6, 0);
+~sclang.sendMsg("/mkcrvfollow", 7, 0, 7, 0);
+~sclang.sendMsg("/mkcrvfollow", 8, 0, 8, 0);//no work
+~sclang.sendMsg("/mkcrvfollow", 9, 0, 9, 0);//no work
+~sclang.sendMsg("/mkcrvfollow", 10, 0, 10, 0);
+~sclang.sendMsg("/mkcrvfollow", 11, 0, 11, 0);
+~sclang.sendMsg("/mkcrvfollow", 12, 0, 12, 0);
+~sclang.sendMsg("/mkcrvfollow", 13, 0, 13, 0);
 
 // "/chgcsr", clkix, newbpm, newdir, chgdur
 ~sclang.sendMsg("/chgcsr", 0, 40, -1, 15);
@@ -499,6 +525,17 @@ s.sendMsg(\n_set, 10002, \freqlo, 1, \freqhi, 15, \kibs, 201);
 ////// Add Warp
 
 ////speed and direction of cursor
+
+/*
+fix curves
+make motives
+use footpedal to choose different menu items
+bouncy ball highlight curve
+count off ball
+
+
+
+*/
 
 
 
