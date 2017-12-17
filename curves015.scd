@@ -298,23 +298,20 @@ s.waitForBoot{ fork{
 
 	}, "/mkcrv");
 
-	OSCdef(\mkCrvFromBuf, {
-		arg buf;
-		var bufasarray;
+	~mkCrvFromArray =  {
+		arg array, ix, winix, crvwt, crvclr;
 		fork{
-			//CONVERT BUFFER TO FLOAT ARRAY
-			buf.loadToFloatArray( action:{arg array; bufasarray = array.as(Array); "done".postln;} );
-
-			0.1.wait;
+			// Make Empty Curve
+			~proc.sendMsg("/mkcrv", ix, winix, crvwt, crvclr);
 
 			//Insert osc name and curve index
-			bufasarray.insert(0, ix);
-			bufasarray.insert(0, "/crvcoord");
+			array.insert(0, ix);
+			array.insert(0, "/crvcoord");
 
 			0.3.wait;
 
 			// Send Curve Coordinates to Processing
-			~proc.sendBundle(0.0, bufasarray);
+			~proc.sendBundle(0.0, array);
 
 			0.85.wait;
 
@@ -322,7 +319,7 @@ s.waitForBoot{ fork{
 			~proc.sendMsg("/rendercrv", ix);
 
 		}; //end fork
-	}, "/mkCrvFromBuf");
+	};
 
 
 	//// Remove curve
@@ -429,6 +426,15 @@ s.waitForBoot{ fork{
 }} //end waitforboot/fork
 )
 
+//retrieve curve from array
+f = Object.readArchive("/Users/yangj14/Documents/GitHub/musicmobiles/curveArrays/crv001.dat".standardizePath);
+~fnorm = f.normalize(0.0, 1.0);
+~mkCrvFromArray.value(~fnorm, 1, 0, 3, "limegreen");
+// array, ix, winix, crvwt, crvclr;
+
+~sclang.sendMsg("/rmvcrv", 1);
+
+
 //////////////////////////////////////////////////
 //////////////////////////////////////////////////
 /////////////////////////////////////////////////
@@ -445,6 +451,7 @@ s.waitForBoot{ fork{
 
 ~sclang.sendMsg("/mkcrvfollow", 1, 1, 1, 0);
 
+
 //////////////////////////////////////////
 
 // 1) off
@@ -458,7 +465,7 @@ s.waitForBoot{ fork{
 
 ~sclang.sendMsg("/mkcrv", 2, 0, 3, 3, "pink");
 
-~sclang.sendMsg("/mkcsr", 2, 0, 150.0, 8.0, 3, "yellow");
+~sclang.sendMsg("/mkcsr", 2, 0, 180.0, 8.0, 3, "yellow");
 
 ~sclang.sendMsg("/mkcrvfollow", 2, 2, 2, 0);
 
@@ -558,7 +565,7 @@ make way to make new cursor synced with different curves
 ~proc.sendMsg("/mkwinlet", 0, 10.0, 140.0, 1000.0, 330.0, "black");
 ~sclang.sendMsg("/mkcrv", 0, 0, 12, 5, "orange");
 
-~sclang.sendMsg("/mkcsr", 0, 0, 10.0, 8.0, 3, "limegreen");
+~sclang.sendMsg("/mkcsr", 0, 0, 5.0, 8.0, 3, "limegreen");
 
 ~sclang.sendMsg("/mkcrvfollow", 0, 0, 0, 0);
 
@@ -579,7 +586,6 @@ make way to make new cursor synced with different curves
 )
 
 
-~sclang.sendMsg("/rmvcrv", 3);
 
 5 Formal Elements
 Density w/demo
@@ -635,6 +641,8 @@ real-time stochatistic distribution
 ~sclang.sendMsg("/mkcrv", 11, 0, 11, 3, "turquoiseblue");
 ~sclang.sendMsg("/mkcrv", 12, 0, 12, 3, "goldenrod");
 ~sclang.sendMsg("/mkcrv", 13, 0, 13, 3, "red");
+
+~sclang.sendMsg("/rmvcrv", 2);
 
 // "/mkcrvfollow, ix, clkix, crvix, winix
 ~sclang.sendMsg("/mkcrvfollow", 0, 0, 0, 0);
